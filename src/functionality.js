@@ -1,6 +1,6 @@
 import $ from "jquery";
 import api from "./api";
-import store from "./store";
+import STORE from "./store";
 
 /*
 
@@ -68,7 +68,7 @@ const bookmarkHTML = function (bookmark) {
   let rateBookmark = starRating(bookmark);
   return `
     <div class = "collapsed-bm-container">
-      <button class = "expnd-bm-button jq-bm-expand">See Details</button>
+      <button class = "expnd-bm-button jq-bm-expand" data-item-id="${bookmark.id}">See Details</button>
       <h3 class = "bm-title jq-bm-title">${bookmark.title}</h3>
       <div class = "jq-bm-rating">${starRating}</div>
       <div class = "bm-rating jq-bm-rating">
@@ -133,16 +133,30 @@ GENERATE ERROR MESSAGE
 
 const generateError = function (err) {
   return `
-  <div class="err-container">
+  <div class="err-container js-err-container">
     <button id="cancel">X</button>
     <h2>Error!</h2>
-    <p>${err}</p>
+    <p>${errMsg}</p>
   </div>  
   `;
 };
 
 const renderClose = function () {
   $(".err-container").remove();
+};
+
+const errRender = function () {
+  if (STORE.error) {
+    if (STORE.adding) {
+      const errMsg = generateError(STORE.error);
+      $(".err-container").after(errMsg);
+    } else if (!STORE.adding) {
+      const errMsg = generateError(STORE.error);
+      $(".bookmark-controls").after(errMsg);
+    }
+  } else {
+    $(".js-err-container").empty();
+  }
 };
 
 /*
@@ -162,8 +176,8 @@ const stringJson = function (inp) {
 //add new bookmark to list
 const handleAddNewBookmark = function () {
   $(".root").on("click", ".jq-add-button", () => {
-    if (!store.adding) {
-      store.adding = true;
+    if (!STORE.adding) {
+      STORE.adding = true;
     }
     render();
   });
@@ -173,55 +187,78 @@ const handleAddNewBookmark = function () {
 const handleNewBookmarkSubmit = function () {
   $(".add-bookmark-form").submit(function (event) {
     event.preventDefault();
-    $(".jq-bm-container").toggleClass("hidden");
-    api.saveBookmark().then(() => {
-      $(".first-container").toggleClass("hidden");
-      store.adding = false;
-      render();
-    });
+
+    let eleForm = $(".add-bookmark-form")[0];
+    let jsonObj = stringJson(eleForm);
+
+    api
+      .retrieveBookmark(jsonObj)
+      .then((newMark) => {
+        STORE.addBookmark(newMark);
+        render();
+      })
+      .catch((evt) => {
+        STORE.setError(evt.message);
+        errRender();
+      });
+    render();
   });
 };
 
 //deleting bookmarks
 const handleBookmarkDelete = function () {
   $(".jq-bm-delete").on("click", (event) => {
-    let idDelete = $(event.currentTarget)
-      .closest(".jq-bm-container")
-      .attr("idDelete");
-    api.deleteBookmark(idDelete).then(() => {
-      store.deleteBookmark(idDelete);
-      render();
-    });
+    const idDelete = $(event.currentTarget)
+      .parent()
+      .parent()
+      .parent()
+      .data("item-id");
+    api
+      .deleteBookmark(idDelete)
+      .then(() => {
+        STORE.deleteBookmark(idDelete);
+        render();
+      })
+      .catch((e) => {
+        STORE.setError(e.message);
+        errRender();
+      });
   });
 };
 
 //get bm id values
 const bmIDVal = function (inp) {
-  return $(inp).closest(".collapsed-bm-container").data();
+  return $(inp).closest(".collapsed-bm-container").data("item-id");
 };
 
-//expand bm details when clicked
-// const bookmarkExpand = function () {
-//   $('.jq-bookmark-container').on('click', (e)) => {
-//     const bm = bmIDVal()
-//   }
-// }
+const handleBookmarkExpand = function () {
+  $(".jq-bookmark-container").on("click", ".jq-exp-button", (e) => {
+    const id = bmIDVal(e.currentTarget);
+    STORE.expandBookmark(id);
+    render();
+  });
+};
 
-/*
+const handleCloseError = function () {
+  $(".bookmark-container").on("click", "#cancel", () => {
+    renderClose();
+    STORE.setError(null);
+  });
+};
 
-BOOKMARK DISPLAY
+const handleCancel = function () {
+  $(".jq-cancel-bm").on("click", function () {
+    STORE.setAdding(false);
+    render;
+  });
+};
 
-*/
-
-const displaySorted = function (marks) {
-  let list = marks;
-  let html = "";
-  for (let i = 0; i < list.length; i++) {
-    html += `
-    <div id = ${list[i].id} class "bmList">
-
-    `;
-  }
+const handleFilter = function () {
+  $(".filter").change(() => {
+    let filterInp = $(".filter").val();
+    STORE.filterBookmarks(filterInp);
+    render();
+  });
 };
 
 /*
@@ -231,34 +268,31 @@ RENDERING
 */
 
 const render = function () {
-  $(".root").html(initialBookmarkPage());
+  $("#main").html(initialBookmarkPage());
 
   //if adding bookmark, render add bookmark page
 
-  if (store.adding) {
-    $(".bookmark-controls").toggleClass(".hide-bookmark-display");
+  if (STORE.adding) {
+    $(".bookmark-controls").toggleClass("hide-bookmark-display");
+    $(".js-error-container").toggleClass("hide-bookmark-display");
     $(".jq-bookmark-container").html(handleBookmarkToggleForm());
+    errRender();
     bindEventListeners();
+
     //if there are previous bookmarks, render those
-  } else if (store.filter) {
-    let filtBookmarks = [...store.filteredBookmarks];
+  } else if (STORE.filter) {
+    let filtBookmarks = [...STORE.filteredBookmarks];
     const bmFilteredHtml = initialBookmarkPage(filtBookmarks);
-    store.filteredBookmarks = [];
+    errRender();
+    STORE.filteredBookmarks = [];
     bindEventListeners();
   } else {
-    const bookmarkHTMLVar = bookmarkHTML(store.bookmarks);
-
+    const bookmarkHTMLVar = bookmarkHTML(STORE.bookmarks);
     $("jq-bookmark-container").html(bookmarkHTMLVar);
+    errRender();
     bindEventListeners();
-  }
-
-  if (store.bookmarks.length > 0) {
-    $(".add-bookmark-container").addClass("hidden");
-  } else {
-    $(".add-bookmark-container").removeClass("hidden");
   }
 };
-
 /*
 
 BINDING EVENT LISTENERS
@@ -271,6 +305,10 @@ const bindEventListeners = function () {
   handleAddNewBookmark();
   handleBookmarkDelete();
   handleNewBookmarkSubmit();
+  handleBookmarkExpand();
+  handleCloseError();
+  handleCancel();
+  handleFilter();
 };
 
 /*

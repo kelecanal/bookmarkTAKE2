@@ -54,6 +54,7 @@ const setFilter = function (inp) {
 export default {
   bookmarks,
   adding,
+  error,
   filter,
   filteredBookmarks,
   addBookmark,
