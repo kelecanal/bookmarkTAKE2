@@ -18,11 +18,9 @@
 
 // $(main);
 
-import $ from "jquery";
-import api from "./api";
 import "normalize.css";
-import STORE from "./store.js";
-import bookmarks from "./bookmarks.js";
+import STORE from "./store";
+import bookmarks from "./bookmarks";
 
 const main = function () {
   api

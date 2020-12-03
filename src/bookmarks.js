@@ -2,118 +2,20 @@ import $ from "jquery";
 import api from "./api";
 import STORE from "./store";
 
-const generateStarRating = function (bookmark) {
-  let starRating;
-  let starChecked = bookmark.rating;
-  let starUnchecked = 5 - starChecked;
-  const starCheckedHtml = `<span class="fa fa-star checked"></span>`;
-  const starUncheckedHtml = `<span class="fa fa-star"></span>`;
+// const generateStarRating = function (bookmark) {
+//   let starRating;
+//   let starChecked = bookmark.rating;
+//   let starUnchecked = 5 - starChecked;
+//   const starCheckedHtml = `<span class="fa fa-star checked"></span>`;
+//   const starUncheckedHtml = `<span class="fa fa-star"></span>`;
 
-  starRating =
-    starCheckedHtml.repeat(starChecked) +
-    starUncheckedHtml.repeat(starUnchecked);
+//   starRating =
+//     starCheckedHtml.repeat(starChecked) +
+//     starUncheckedHtml.repeat(starUnchecked);
 
-  return starRating;
-};
+//   return starRating;
+// };
 
-const generateBookMarkHtml = function (bookmark) {
-  let bookmarkExpand = !bookmark.expand ? "bookmark-hide" : "";
-  let bookmarkRating = generateStarRating(bookmark);
-  return `
-      <div class="bookmark-condensed-container js-bookmark-condensed-container" data-item-id="${bookmark.id}">
-        <button class="expand-button js-expand-button">Expand Me!</button>  
-        <h2 class="bookmark-name js-bookmark-name">${bookmark.title}</h2>
-        <div class="bookmark-rating js-bookmark-rating">
-          ${bookmarkRating}
-        </div>
-        <div class="bookmark-expand js-bookmark-expand-container ${bookmarkExpand}">
-          <p>Description: ${bookmark.desc}</p>
-          <div class="actions">
-            <a class="bookmark-URL js-bookmark-URL" href=${bookmark.url} target="_blank"><strong>Visit Site!</strong></a>
-            <button class="delete-button js-delete-button">Delete Me!</button>
-          </div>
-        </div>
-      </div>
-    `;
-};
-//loop through bookmarks and display
-const generateBookMarksHtml = function (bookmarks) {
-  const bookmarksHtml = bookmarks.map((bookmark) =>
-    generateBookMarkHtml(bookmark)
-  );
-
-  return bookmarksHtml.join("");
-};
-
-const generateBookmarkHeader = function () {
-  $("#main").html(`
-    
-    <header role="banner">
-    <h1>BookMark</h1>
-  </header>
-<!-- BOOKMARKS CONTROLS-->
-  <div class="main-container" role="main">
-    <div class="flex-container">
-      <section class="user-controls">
-        <button class="button-add js-button-add">+Add New Bookmark</button>
-        <div class="filter-container">
-          <label for="star-rating-filter">Filter by:</label>
-          <select name="star-rating" id="star-rating-filter">
-            <option value="0">minimum rating</option>
-            <option value="5">5+ stars</option>
-            <option value="4">4+ stars</option>
-            <option value="3">3+ stars</option>
-            <option value="2">2+ stars</option>
-            <option value="1">see all</option>
-          </div>
-        </select>
-      </section>
-  <!-- BOOKMARKS DISPLAY -->
-      <section class="bookmark-container js-bookmark-container">
-      </section>
-    </div>
-  </div>`);
-};
-
-const generateBookMarkAddHtml = function () {
-  return `
-<div class="add-bookmark-container">
-<form class="add-bookmark-form"> 
-  <fieldset role="group">
-    <legend class="form">Bookmark Information</legend>
-    <label class="form" for="title">Title:</label><br>
-    <input type="text" id="title" name="title" required><br>
-    <div class"bookmark-hide" role="radiogroup" aria-labelledby="rating">
-      <label class="form" id="rating">Rating:</label><br>
-      <label class="bookmark-hide" for="rating5">5 stars</label>
-      <input type="radio" name="rating" id="rating5" value="5" checked>5 stars
-      <label class="bookmark-hide" for="rating4">4 stars</label>
-      <input type="radio" name="rating" id="rating4" value="4">4 stars
-      <label class="bookmark-hide" for="rating3">3 stars</label>
-      <input type="radio" name="rating" id="rating3" value="3">3 stars
-      <label class="bookmark-hide" for="rating2">2 stars</label>
-      <input type="radio" name="rating" id="rating2" value="2">2 stars
-      <label class="bookmark-hide" for="rating1">1 star</label>
-      <input type="radio" name="rating" id="rating1" value="1">1 star<br>
-    </div>
-    <lable class="form">Description:<br>
-      <textarea name="desc" id="bookmark-description" cols="100" rows="10" ></textarea>
-    </lable><br>
-    <label class="form" for="url">Bookmark URL:</label><br>
-    <input type="url" name="url" id="url" required><br>
-    <div class="url-warning-container">
-      <p class="url-warning"> URL must include HTTP/HTTPS</p>
-    </div>
-    <div class="actions">
-      <input type="submit" value="Submit">
-      <input type="reset" value="Reset"> 
-      <input type="button" value="Cancel" class="js-cancel-button">
-    </div>
-  </fieldset>
-</form>
-</div>
-`;
-};
 const generateError = function (errorMessage) {
   return `
     <!-- ERROR DISPLAY -->
