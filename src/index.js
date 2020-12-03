@@ -1,10 +1,12 @@
+import $ from "jquery";
+import api from "./api";
 import "normalize.css";
-import STORE from "./store";
+import STORE from "./store.js";
 import functionality from "./functionality";
 
 const main = function () {
   api
-    .getBookmarks()
+    .retrieveBookmark()
     .then((res) => res.json())
     .then((res) => {
       res.forEach((bookmark) => STORE.addBookmark(bookmark));

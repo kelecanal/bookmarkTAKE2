@@ -9,13 +9,14 @@ RATING
 */
 
 const starRating = (bkmark) => {
+  let starRatings;
   let starUp = bkmark.rating;
   let starDown = 5 - starUp;
 
   const starUpShow = `<span class = "star-up"></span>`;
   const starDownShow = `<span class = "star-down"></span>`;
 
-  let starRatings = starUpShow.repeat(starUp) + starDownShow.repeat(starDown);
+  starRatings = starUpShow.repeat(starUp) + starDownShow.repeat(starDown);
 
   return starRatings;
 };
@@ -25,6 +26,29 @@ const starRating = (bkmark) => {
 TEMPLATES
 
 */
+
+//bookmark view when rendered
+const bookmarkHTML = function (bookmark) {
+  let togBookmark = !bookmark.expand ? "hide-bookmark-display" : "";
+  let rateBookmark = starRating(bookmark);
+  return `
+    <div class = "collapsed-bm-container">
+      <button class = "expnd-bm-button jq-bm-expand" data-item-id="${bookmark.id}">See Details</button>
+      <h3 class = "bm-title jq-bm-title">${bookmark.title}</h3>
+      <div class = "jq-bm-rating">${starRating}</div>
+      <div class = "bm-rating jq-bm-rating">
+        ${rateBookmark}
+      </div>
+      <div class = "expnd-bm-container jq-ex-bm-container ${togBookmark}">
+        <p>Description: ${bookmark.description}</p>
+      </div>
+      <div class = "extLink-delete">
+        <a class = "jq-bm-url" href=${bookmark.url} target="_blank">Click to visit</a>
+        <button class = "jq-bm-delete">Delete</button>
+      </div>
+    </div>
+  `;
+};
 
 //int view of page
 const initialBookmarkPage = function () {
@@ -60,29 +84,6 @@ const bookmarkHtmlCir = function (inp) {
     bookmarkHTML(mark);
   });
   return bmHTML.join("");
-};
-
-//bookmark view when rendered
-const bookmarkHTML = function (bookmark) {
-  let togBookmark = !bookmark.expand ? "hide-bookmark-display" : "";
-  let rateBookmark = starRating(bookmark);
-  return `
-    <div class = "collapsed-bm-container">
-      <button class = "expnd-bm-button jq-bm-expand" data-item-id="${bookmark.id}">See Details</button>
-      <h3 class = "bm-title jq-bm-title">${bookmark.title}</h3>
-      <div class = "jq-bm-rating">${starRating}</div>
-      <div class = "bm-rating jq-bm-rating">
-        ${rateBookmark}
-      </div>
-      <div class = "expnd-bm-container jq-ex-bm-container">
-        <p>Description: ${bookmark.description}</p>
-      </div>
-      <div class = "extLink-delete">
-        <a class = "jq-bm-url" href=${bookmark.url} target="_blank">Click to visit</a>
-        <button class = "jq-bm-delete">Delete</button>
-      </div>
-    </div>
-  `;
 };
 
 //form that shows bookmarks are (to be) toggled
@@ -282,12 +283,12 @@ const render = function () {
     //if there are previous bookmarks, render those
   } else if (STORE.filter) {
     let filtBookmarks = [...STORE.filteredBookmarks];
-    const bmFilteredHtml = initialBookmarkPage(filtBookmarks);
+    const bmFilteredHtml = bookmarkHtmlCir(filtBookmarks);
     errRender();
     STORE.filteredBookmarks = [];
     bindEventListeners();
   } else {
-    const bookmarkHTMLVar = bookmarkHTML(STORE.bookmarks);
+    const bookmarkHTMLVar = bookmarkHtmlCir(STORE.bookmarks);
     $("jq-bookmark-container").html(bookmarkHTMLVar);
     errRender();
     bindEventListeners();
