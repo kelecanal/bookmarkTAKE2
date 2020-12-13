@@ -6,10 +6,10 @@ let filteredBookmarks = [];
 
 const addBookmark = function (obj) {
   //create for loop
-  for (let i = 0; i < bookmarks.length; i++) {
+  for (let i = 0; i < obj.length; i++) {
     //when looping thru bookmarks array, if value of bookmark
-    if (bookmarks[i]) {
-      bookmarks[i].expand = false;
+    if (obj[i]) {
+      obj[i].expand = false;
     }
   }
   //add bmmark to store
@@ -20,7 +20,7 @@ const addBookmark = function (obj) {
 
 const expandBookmark = function (obj) {
   //return val that passes
-  let exBm = bookmarks.find((bookmark) => bookmark.obj === obj);
+  let exBm = bookmarks.find((bookmark) => bookmark.id === obj);
   if (exBm.expand) {
     exBm.expand = false;
   } else {

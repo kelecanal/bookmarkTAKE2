@@ -1,0 +1,14 @@
+main {
+    display: inline;
+    justify-content: center;
+}
+
+
+h1 {
+    display: flex;
+}
+
+.bookmark-condensed-container {
+    display: flex;
+    text-align: center;
+}

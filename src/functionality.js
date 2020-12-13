@@ -2,161 +2,146 @@ import $ from "jquery";
 import api from "./api";
 import STORE from "./store";
 
-/*
-
-RATING
-
-*/
-
-const starRating = (bkmark) => {
+const ratingStar = function (bookmark) {
   let starRatings;
-  let starUp = bkmark.rating;
-  let starDown = 5 - starUp;
+  let starUp = bookmark.rating;
+  let starSelect = 5 - starUp;
+  const starUpHtml = `<span class="star-up checked"></span>`;
+  const starSelectHtml = `<span class="star-up"></span>`;
 
-  const starUpShow = `<span class = "star-up"></span>`;
-  const starDownShow = `<span class = "star-down"></span>`;
-
-  starRatings = starUpShow.repeat(starUp) + starDownShow.repeat(starDown);
+  starRatings = starUpHtml.repeat(starUp) + starSelectHtml.repeat(starSelect);
 
   return starRatings;
 };
 
-/*
-
-TEMPLATES
-
-*/
-
-//bookmark view when rendered
-const bookmarkHTML = function (bookmark) {
-  let togBookmark = !bookmark.expand ? "hide-bookmark-display" : "";
-  let rateBookmark = starRating(bookmark);
+const generateBookMarkHtml = function (bookmark) {
+  let togBookmark = !bookmark.expand ? "bookmark-hide" : "";
+  let rateBookmark = ratingStar(bookmark);
   return `
-    <div class = "collapsed-bm-container">
-      <button class = "expnd-bm-button jq-bm-expand" data-item-id="${bookmark.id}">See Details</button>
-      <h3 class = "bm-title jq-bm-title">${bookmark.title}</h3>
-      <div class = "jq-bm-rating">${starRating}</div>
-      <div class = "bm-rating jq-bm-rating">
-        ${rateBookmark}
+      <div class="bookmark-condensed-container collapsed-bm-container" data-item-id="${bookmark.id}">
+        <button class="expand-button jq-exp-button">Expand Me!</button>  
+        <h2 class="bookmark-name js-bookmark-name">${bookmark.title}</h2>
+        <div class="bookmark-rating js-bookmark-rating">
+          ${rateBookmark}
+        </div>
+        <div class="expnd-bm js-expnd-bm-container ${togBookmark}">
+          <p>description: ${bookmark.desc}</p>
+          <div class="actions">
+            <a class="bookmark-URL jq-bm-url" href=${bookmark.url} target="_blank"><strong>Visit Site!</strong></a>
+            <button class="delete-button jq-bm-delete">Delete Me!</button>
+          </div>
+        </div>
       </div>
-      <div class = "expnd-bm-container jq-ex-bm-container ${togBookmark}">
-        <p>Description: ${bookmark.description}</p>
-      </div>
-      <div class = "extLink-delete">
-        <a class = "jq-bm-url" href=${bookmark.url} target="_blank">Click to visit</a>
-        <button class = "jq-bm-delete">Delete</button>
-      </div>
-    </div>
-  `;
+    `;
 };
+//loop through bookmarks and display
+const bookmarkHtmlCir = function (bookmarks) {
+  const bmHTML = bookmarks.map((bookmark) => generateBookMarkHtml(bookmark));
 
-//int view of page
-const initialBookmarkPage = function () {
-  return $("#main").html(`
-    <header>
-      <h1>Store Your Bookmarks!</h1>
-    </header>
-    <div class="first-container" role="main">
-      <div class="bookmark-container">
-         <section class="bookmark-controls">
-             <button class="add-button jq-add-button">+ Add New!</button>
-             <div class="filter-container">
-                 <label for="star-rating-filter">Filter by:</label>
-                 <select name="star-filter" id="filter">
-                     <option value="5">5 Stars</option>
-                     <option value="4">4 Stars</option>
-                     <option value="3">3 Stars</option>
-                     <option value="2">2 Stars</option>
-                     <option value="1">1 Star</option>
-                 </select>
-             </div>
-         </section>
-         <section class="bm-container jq-bm-container">
-         </section>
-      </div>
-    </div>
-    `);
-};
-
-//map thru bm
-const bookmarkHtmlCir = function (inp) {
-  const bmHTML = inp.map((mark) => {
-    bookmarkHTML(mark);
-  });
   return bmHTML.join("");
 };
 
-//form that shows bookmarks are (to be) toggled
-const handleBookmarkToggleForm = function () {
-  return `
-        <div class ="add-bookmark-container">
-            <form class="add-bookmark-form">
-                <fieldset role="group">
-                <legend class ="form"><h3>Add Bookmark</h3></legend>
-                <label class ="form" for="title">Bookmark Title:</label>
-                <input type="text" id="title" name="title" required>
-                <div class="hide-bookmark-display">
-                    <label for="rating-title" class="form">Rating</label><br>
-                    <label for="star-rating" class="hide-bookmark-display" id="rating5">5*</label>
-                    <input type="radio" name="rating" id="rating5"  value="5">
-                    <label for="star-rating" class="hide-bookmark-display" id="rating4">4*</label>
-                    <input type="radio" name="rating" id="rating4"  value="4">
-                    <label for="star-rating" class="hide-bookmark-display" id="rating3">3*</label>
-                    <input type="radio" name="rating" id="rating3"  value="3">
-                    <label for="star-rating" class="hide-bookmark-display" id="rating2">2*</label>
-                    <input type="radio" name="rating" id="rating2"  value="2">
-                    <label for="star-rating" class="hide-bookmark-display" id="rating1">1*</label>
-                    <input type="radio" name="rating" id="rating1"  value="1">
-                </div>
-                <label for="description" class="form">Description:<br>
-                <textarea name="description" id="" cols="70" rows="5"></textarea>
-                </label><br>
-                <label for="URL" class="form">URL:<br></label>
-                <input type="text" name="URL" id="url-input" required>
-                <div class="required-message">
-                    <p class="url-requirements">URLs <i>must</i> contain HTTP/HTTPS</p>
-                </div>
-                <div class="action-buttons">
-                    <input type="submit" value="Submit">
-                    <input type="button" value="Cancel" class="jq-cancel-bm">
-                </div>
-            </fieldset>
-            </form>
-        </div>
-   `;
+const bookmarkInit = function () {
+  $("#main").html(`
+    
+    <header role="banner">
+    <h1>Store Your Bookmarks!</h1>
+  </header>
+<!-- BOOKMARKS CONTROLS-->
+  <div class="first-container" role="main">
+    <div class="bm-container">
+      <section class="bookmark-controls">
+        <button class="add-button jq-add-button">+Add New Bookmark</button>
+        <div class="filter-container">
+          <label for="filter">Filter by:</label>
+          <select name="star-rating" id="filter">
+          <option value="5">5 Stars</option>
+          <option value="4">4 Stars</option>
+          <option value="3">3 Stars</option>
+          <option value="2">2 Stars</option>
+          <option value="1">1 Star</option>
+          </div>
+        </select>
+      </section>
+  <!-- BOOKMARKS DISPLAY -->
+      <section class="bm-container jq-bm-container">
+      </section>
+    </div>
+  </div>`);
 };
 
-/* 
-
-GENERATE ERROR MESSAGE
-
-*/
-
-const generateError = function (err) {
+const handleBookmarkToggleForm = function () {
   return `
-  <div class="err-container js-err-container">
-    <button id="cancel">X</button>
-    <h2>Error!</h2>
-    <p>${errMsg}</p>
-  </div>  
-  `;
+<div class="add-bm-container">
+<form class="add-bookmark-form"> 
+  <fieldset role="group">
+    <legend class="form">Bookmark Information</legend>
+    <label class="form" for="title">Title:</label><br>
+    <input type="text" id="title" name="title" required><br>
+    <div class"bookmark-hide" role="radiogroup" aria-labelledby="rating">
+      <label class="form" id="rating">Rating:</label><br>
+      <label class="bookmark-hide" for="rating5">5*</label>
+      <input type="radio" name="rating" id="rating5" value="5" checked>5 stars
+      <label class="bookmark-hide" for="rating4">4*</label>
+      <input type="radio" name="rating" id="rating4" value="4">4 stars
+      <label class="bookmark-hide" for="rating3">3*</label>
+      <input type="radio" name="rating" id="rating3" value="3">3 stars
+      <label class="bookmark-hide" for="rating2">2*</label>
+      <input type="radio" name="rating" id="rating2" value="2">2 stars
+      <label class="bookmark-hide" for="rating1">1*</label>
+      <input type="radio" name="rating" id="rating1" value="1">1 star<br>
+    </div>
+    <label for="description" class="form">description:<br>
+      <textarea name="desc" id="bookmark-description" cols="70" rows="5" ></textarea>
+    </label><br>
+    <label class="form" for="url">URL:</label><br>
+    <input type="url" name="url" id="url" required><br>
+    <div class="required-message">
+    <p class="url-requirements">URLs <i>must</i> contain HTTP/HTTPS</p>
+    </div>
+    <div class="actions">
+      <input type="submit" value="Submit">
+      <input type="reset" value="Reset"> 
+      <input type="button" value="Cancel" class="jq-cancel-bm">
+    </div>
+  </fieldset>
+</form>
+</div>
+`;
+};
+
+// /*
+
+// GENERATE ERROR MESSAGE
+
+// */
+
+const generateError = function (errMessage) {
+  return `
+    <div class="err-container jq-err-container">
+      <button id="cancel">X</button>
+      <h2>ERROR!</h2>
+      <p>${errMessage}</p>
+    </div>
+    `;
 };
 
 const renderClose = function () {
-  $(".err-container").remove();
+  $(".jq-err-container").remove();
 };
 
+// if there is an error, render error container
 const errRender = function () {
   if (STORE.error) {
     if (STORE.adding) {
-      const errMsg = generateError(STORE.error);
-      $(".err-container").after(errMsg);
+      const errMessage = generateError(STORE.error);
+      $(".bm-container").after(errMessage);
     } else if (!STORE.adding) {
-      const errMsg = generateError(STORE.error);
-      $(".bookmark-controls").after(errMsg);
+      const errMessage = generateError(STORE.error);
+      $(".bookmark-controls").after(errMessage);
     }
   } else {
-    $(".js-err-container").empty();
+    $(".jq-err-container").empty();
   }
 };
 
@@ -166,17 +151,17 @@ EVENT LISTENERS
 
 */
 
-//stringify json data
-const stringJson = function (inp) {
-  const bmData = new bmData(inp);
+const stringJson = function (form) {
+  const formData = new FormData(form);
   const mark = {};
-  bmData.forEach((ent, name) => (mark[name] = ent));
+  formData.forEach((val, name) => (mark[name] = val));
   return JSON.stringify(mark);
 };
 
-//add new bookmark to list
+//toggle true false - add
 const handleAddNewBookmark = function () {
-  $(".root").on("click", ".jq-add-button", () => {
+  $("#main").on("click", ".jq-add-button", function () {
+    console.log("this is working");
     if (!STORE.adding) {
       STORE.adding = true;
     }
@@ -184,7 +169,7 @@ const handleAddNewBookmark = function () {
   });
 };
 
-//submitting new bookmarks
+//submit new bookmarks
 const handleNewBookmarkSubmit = function () {
   $(".add-bookmark-form").submit(function (event) {
     event.preventDefault();
@@ -193,7 +178,7 @@ const handleNewBookmarkSubmit = function () {
     let jsonObj = stringJson(eleForm);
 
     api
-      .retrieveBookmark(jsonObj)
+      .saveBookmark(jsonObj)
       .then((newMark) => {
         STORE.addBookmark(newMark);
         render();
@@ -206,10 +191,53 @@ const handleNewBookmarkSubmit = function () {
   });
 };
 
-//deleting bookmarks
+/*
+
+RENDERING
+
+*/
+
+const render = function () {
+  $("#main").html(bookmarkInit());
+  if (STORE.adding) {
+    $(".bookmark-controls").toggleClass("bookmark-hide");
+    $(".jq-err-container-main").toggleClass("bookmark-hide");
+    $(".jq-bm-container").html(handleBookmarkToggleForm());
+    errRender();
+    bindEventListeners();
+
+    //if any bookmarks, display those
+  } else if (STORE.filter) {
+    let bookmarksFilteredCopy = [...STORE.filteredBookmarks];
+    const bookmarkFilteredHtml = bookmarkHtmlCir(bookmarksFilteredCopy);
+    $(".jq-bm-container").html(bookmarkFilteredHtml);
+    errRender();
+    STORE.filteredBookmarks = [];
+    bindEventListeners();
+  } else {
+    const bookmarkHtml = bookmarkHtmlCir(STORE.bookmarks);
+    $(".jq-bm-container").html(bookmarkHtml);
+    errRender();
+    bindEventListeners();
+  }
+};
+
+//target bookmark ids
+const bmIDVal = function (targetElement) {
+  return $(targetElement).closest(".collapsed-bm-container").data("item-id");
+};
+//expand bookmark details on click
+const handleTogBookmark = function () {
+  $(".jq-bm-container").on("click", ".jq-exp-button", (e) => {
+    const id = bmIDVal(e.currentTarget);
+    STORE.expandBookmark(id);
+    render();
+  });
+};
+//Delete bookmark from api/store
 const handleBookmarkDelete = function () {
-  $(".jq-bm-delete").on("click", (event) => {
-    const idDelete = $(event.currentTarget)
+  $(".jq-bm-delete").on("click", (e) => {
+    const idDelete = $(e.currentTarget)
       .parent()
       .parent()
       .parent()
@@ -220,43 +248,30 @@ const handleBookmarkDelete = function () {
         STORE.deleteBookmark(idDelete);
         render();
       })
-      .catch((e) => {
-        STORE.setError(e.message);
+      .catch((evt) => {
+        STORE.setError(evt.message);
         errRender();
       });
   });
 };
 
-//get bm id values
-const bmIDVal = function (inp) {
-  return $(inp).closest(".collapsed-bm-container").data("item-id");
-};
-
-const handleBookmarkExpand = function () {
-  $(".jq-bookmark-container").on("click", ".jq-exp-button", (e) => {
-    const id = bmIDVal(e.currentTarget);
-    STORE.expandBookmark(id);
-    render();
-  });
-};
-
-const handleCloseError = function () {
-  $(".bookmark-container").on("click", "#cancel", () => {
+const handleErrorClose = function () {
+  $(".bm-container").on("click", "#cancel", () => {
     renderClose();
     STORE.setError(null);
   });
 };
 
-const handleCancel = function () {
+const handleBookmarkCancel = function () {
   $(".jq-cancel-bm").on("click", function () {
     STORE.setAdding(false);
-    render;
+    render();
   });
 };
 
-const handleFilter = function () {
-  $(".filter").change(() => {
-    let filterInp = $(".filter").val();
+const handleBookmarkFilter = function () {
+  $("#filter").change(() => {
+    let filterInp = $("#filter").val();
     STORE.filterBookmarks(filterInp);
     render();
   });
@@ -264,52 +279,18 @@ const handleFilter = function () {
 
 /*
 
-RENDERING
-
-*/
-
-const render = function () {
-  $("#main").html(initialBookmarkPage());
-
-  //if adding bookmark, render add bookmark page
-
-  if (STORE.adding) {
-    $(".bookmark-controls").toggleClass("hide-bookmark-display");
-    $(".js-error-container").toggleClass("hide-bookmark-display");
-    $(".jq-bookmark-container").html(handleBookmarkToggleForm());
-    errRender();
-    bindEventListeners();
-
-    //if there are previous bookmarks, render those
-  } else if (STORE.filter) {
-    let filtBookmarks = [...STORE.filteredBookmarks];
-    const bmFilteredHtml = bookmarkHtmlCir(filtBookmarks);
-    errRender();
-    STORE.filteredBookmarks = [];
-    bindEventListeners();
-  } else {
-    const bookmarkHTMLVar = bookmarkHtmlCir(STORE.bookmarks);
-    $("jq-bookmark-container").html(bookmarkHTMLVar);
-    errRender();
-    bindEventListeners();
-  }
-};
-/*
-
 BINDING EVENT LISTENERS
 
 */
 
 const bindEventListeners = function () {
-  initialBookmarkPage();
-  handleBookmarkToggleForm();
-  handleAddNewBookmark();
+  handleErrorClose();
+  handleBookmarkFilter();
+  handleBookmarkCancel();
   handleBookmarkDelete();
+  handleTogBookmark();
+  handleAddNewBookmark();
   handleNewBookmarkSubmit();
-  handleBookmarkExpand();
-  handleCloseError();
-  handleCancel();
-  handleFilter();
 };
 
 /*

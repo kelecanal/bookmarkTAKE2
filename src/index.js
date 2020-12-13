@@ -1,8 +1,9 @@
 import $ from "jquery";
 import api from "./api";
 import "normalize.css";
+import "./style.css";
 import STORE from "./store.js";
-import functionality from "./functionality";
+import functionality from "./functionality.js";
 
 const main = function () {
   api
