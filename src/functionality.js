@@ -51,9 +51,9 @@ const bookmarkInit = function () {
   <div class="first-container" role="main">
     <div class="bm-container">
       <section class="bookmark-controls">
-        <button class="add-button jq-add-button">+Add New Bookmark</button>
+        <button class="add-button jq-add-button">+Add New Bookmark</button><br>
         <div class="filter-container">
-          <label for="filter">Filter by:</label>
+          <label for="filter"> Filter by:</label>
           <select name="star-rating" id="filter">
           <option value="5">5 Stars</option>
           <option value="4">4 Stars</option>
@@ -81,18 +81,18 @@ const handleBookmarkToggleForm = function () {
     <div class"bookmark-hide" role="radiogroup" aria-labelledby="rating">
       <label class="form" id="rating">Rating:</label><br>
       <label class="bookmark-hide" for="rating5">5*</label>
-      <input type="radio" name="rating" id="rating5" value="5" checked>5 stars
+      <input type="radio" name="rating" id="rating5" value="5" checked>
       <label class="bookmark-hide" for="rating4">4*</label>
-      <input type="radio" name="rating" id="rating4" value="4">4 stars
+      <input type="radio" name="rating" id="rating4" value="4">
       <label class="bookmark-hide" for="rating3">3*</label>
-      <input type="radio" name="rating" id="rating3" value="3">3 stars
+      <input type="radio" name="rating" id="rating3" value="3">
       <label class="bookmark-hide" for="rating2">2*</label>
-      <input type="radio" name="rating" id="rating2" value="2">2 stars
+      <input type="radio" name="rating" id="rating2" value="2">
       <label class="bookmark-hide" for="rating1">1*</label>
-      <input type="radio" name="rating" id="rating1" value="1">1 star<br>
+      <input type="radio" name="rating" id="rating1" value="1"><br>
     </div>
     <label for="description" class="form">description:<br>
-      <textarea name="desc" id="bookmark-description" cols="70" rows="5" ></textarea>
+      <textarea name="desc" id="bookmark-description" cols="40" rows="5" ></textarea>
     </label><br>
     <label class="form" for="url">URL:</label><br>
     <input type="url" name="url" id="url" required><br>
@@ -226,14 +226,16 @@ const render = function () {
 const bmIDVal = function (targetElement) {
   return $(targetElement).closest(".collapsed-bm-container").data("item-id");
 };
+
 //expand bookmark details on click
-const handleTogBookmark = function () {
+const handleBookmarkExpand = function () {
   $(".jq-bm-container").on("click", ".jq-exp-button", (e) => {
     const id = bmIDVal(e.currentTarget);
     STORE.expandBookmark(id);
     render();
   });
 };
+
 //Delete bookmark from api/store
 const handleBookmarkDelete = function () {
   $(".jq-bm-delete").on("click", (e) => {
@@ -288,7 +290,7 @@ const bindEventListeners = function () {
   handleBookmarkFilter();
   handleBookmarkCancel();
   handleBookmarkDelete();
-  handleTogBookmark();
+  handleBookmarkExpand();
   handleAddNewBookmark();
   handleNewBookmarkSubmit();
 };

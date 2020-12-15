@@ -1,7 +1,7 @@
 const BASE_URL = "https://thinkful-list-api.herokuapp.com/kelecanal";
 
 //retrieve list from API
-function fetchAPI(...args) {
+function listApiFetch(...args) {
   let err;
   return fetch(...args)
     .then((res) => {
@@ -37,7 +37,7 @@ const saveBookmark = function (obj) {
     body: newBookmark,
   };
 
-  return fetchAPI(BASE_URL + "/bookmarks", options);
+  return listApiFetch(BASE_URL + "/bookmarks", options);
 };
 
 //delete bookmark
@@ -48,7 +48,7 @@ const deleteBookmark = function (obj) {
       "Content-type": "application/json",
     },
   };
-  return fetchAPI(BASE_URL + "/bookmarks/" + obj, options);
+  return listApiFetch(BASE_URL + "/bookmarks/" + obj, options);
 };
 
 //export functions
