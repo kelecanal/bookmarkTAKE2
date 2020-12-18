@@ -43,15 +43,14 @@ const bookmarkHtmlCir = function (bookmarks) {
 
 const bookmarkInit = function () {
   $("#main").html(`
-    
     <header role="banner">
     <h1>Store Your Bookmarks!</h1>
   </header>
-<!-- BOOKMARKS CONTROLS-->
+  <!-- BOOKMARKS CONTROLS-->
   <div class="first-container" role="main">
     <div class="bm-container">
       <section class="bookmark-controls">
-        <button class="add-button jq-add-button">+Add New Bookmark</button><br>
+        <button class="add-button jq-add-button">+Add New!</button><br>
         <div class="filter-container">
           <label for="filter"> Filter by:</label>
           <select name="star-rating" id="filter">
@@ -191,37 +190,6 @@ const handleNewBookmarkSubmit = function () {
   });
 };
 
-/*
-
-RENDERING
-
-*/
-
-const render = function () {
-  $("#main").html(bookmarkInit());
-  if (STORE.adding) {
-    $(".bookmark-controls").toggleClass("bookmark-hide");
-    $(".jq-err-container-main").toggleClass("bookmark-hide");
-    $(".jq-bm-container").html(handleBookmarkToggleForm());
-    errRender();
-    bindEventListeners();
-
-    //if any bookmarks, display those
-  } else if (STORE.filter) {
-    let bookmarksFilteredCopy = [...STORE.filteredBookmarks];
-    const bookmarkFilteredHtml = bookmarkHtmlCir(bookmarksFilteredCopy);
-    $(".jq-bm-container").html(bookmarkFilteredHtml);
-    errRender();
-    STORE.filteredBookmarks = [];
-    bindEventListeners();
-  } else {
-    const bookmarkHtml = bookmarkHtmlCir(STORE.bookmarks);
-    $(".jq-bm-container").html(bookmarkHtml);
-    errRender();
-    bindEventListeners();
-  }
-};
-
 //target bookmark ids
 const bmIDVal = function (targetElement) {
   return $(targetElement).closest(".collapsed-bm-container").data("item-id");
@@ -238,7 +206,7 @@ const handleBookmarkExpand = function () {
 
 //Delete bookmark from api/store
 const handleBookmarkDelete = function () {
-  $(".jq-bm-delete").on("click", (e) => {
+  $(".jq-bm-delete").click((e) => {
     const idDelete = $(e.currentTarget)
       .parent()
       .parent()
@@ -277,6 +245,37 @@ const handleBookmarkFilter = function () {
     STORE.filterBookmarks(filterInp);
     render();
   });
+};
+
+/*
+
+RENDERING
+
+*/
+
+const render = function () {
+  $("#main").html(bookmarkInit());
+  if (STORE.adding) {
+    $(".bookmark-controls").toggleClass("bookmark-hide");
+    $(".jq-err-container-main").toggleClass("bookmark-hide");
+    $(".jq-bm-container").html(handleBookmarkToggleForm());
+    errRender();
+    bindEventListeners();
+
+    //if any bookmarks, display those
+  } else if (STORE.filter) {
+    let bookmarksFilteredCopy = [...STORE.filteredBookmarks];
+    const bookmarkFilteredHtml = bookmarkHtmlCir(bookmarksFilteredCopy);
+    $(".jq-bm-container").html(bookmarkFilteredHtml);
+    errRender();
+    STORE.filteredBookmarks = [];
+    bindEventListeners();
+  } else {
+    const bookmarkHtml = bookmarkHtmlCir(STORE.bookmarks);
+    $(".jq-bm-container").html(bookmarkHtml);
+    errRender();
+    bindEventListeners();
+  }
 };
 
 /*
