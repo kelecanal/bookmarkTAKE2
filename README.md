@@ -15,4 +15,4 @@ Bookmarks should render when the page is first loaded.
 Bookmarks should be removable
 URL and Title are required fields. If not input, they should throw an error.
 Rating should be a drop down + submit.<br><br>
-Link to live app:
+Link to live app: https://kelecanal.github.io/bookmarkTAKE2/
